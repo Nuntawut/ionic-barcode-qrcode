@@ -1,8 +1,12 @@
 import { Component } from '@angular/core';
-import { NavController, AlertController } from 'ionic-angular';
+import { NavController, AlertController, ToastController } from 'ionic-angular';
 import { Http } from '@angular/http';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner';
+import { AngularFireAuth } from 'angularfire2/auth';
+import { AngularFireDatabase } from 'angularfire2/database';
+
 import 'rxjs/add/operator/map';
+
 
 import { LoginPage } from '../login/login';
 
@@ -17,10 +21,13 @@ export class HomePage {
   groupnum: number;
   score: number;
   fixscore:any = true;
+  userid:any;
+
+  public fname;
 
   //API Url and Google sheet id
   public link = 'https://google-sheet-api.herokuapp.com/';
-  public spreadsheetId = '1KaiWI5buoTT5AtT3LJis2nffPCVNiqC6v_4xIE-xzQI';
+  public spreadsheetId;
   public namesheet = 'SheetApi';
 
   public scanOption = {
@@ -29,8 +36,22 @@ export class HomePage {
     disableSuccessBeep: false
   };
 
-  constructor(public navCtrl: NavController, public alerCtrl: AlertController, public barcodeScanner: BarcodeScanner, public http: Http) {
+  constructor(private toast: ToastController, private afAuth: AngularFireAuth, private db: AngularFireDatabase, public navCtrl: NavController, public alerCtrl: AlertController, public barcodeScanner: BarcodeScanner, public http: Http) {
     
+    this.userid = this.afAuth.auth.currentUser.uid;
+    
+    this.db.object('/users/'+this.userid).valueChanges().subscribe(data =>{
+      this.fname = data['fname'];
+      this.spreadsheetId = data['spreadsheetId'];
+      console.log(this.fname);
+      console.log(this.spreadsheetId);
+      if(this.fname){
+        this.toast.create({
+          message: `Welcome to SUT Barcode Scanner, ${this.fname}`,
+          duration: 3000
+        }).present();
+      }
+    })   
   }
 
   scanBarcode(){
@@ -54,6 +75,12 @@ export class HomePage {
       }
     }else{
       console.log('Score is not fix');
+      let alert = this.alerCtrl.create({
+        title: 'Error!',
+        message: 'Comming Soon!',
+        buttons: ['Ok']
+      });
+      alert.present()
     }
     
   }
@@ -84,7 +111,7 @@ export class HomePage {
     console.log(this.groupnum);
     console.log(this.score);
 
-    var myData = JSON.stringify({student_id: this.student_id, group: this.groupnum, score: this.score, spreadsheetId: this.spreadsheetId, namesheet: this.namesheet});
+    var myData = JSON.stringify({course_id: this.courseid, student_id: this.student_id, group: this.groupnum, score: this.score, spreadsheetId: this.spreadsheetId, namesheet: this.namesheet});
     this.http.post(this.link, myData).map(res => res.json())
       .subscribe(data => {
         console.log(data[0]['status']);
@@ -116,7 +143,15 @@ export class HomePage {
           text: 'Ok',
           handler: () => {
             console.log('Ok');
-            this.navCtrl.setRoot(LoginPage);
+            try {
+              const result = this.afAuth.auth.signOut();
+              if (result) {
+                this.navCtrl.setRoot(LoginPage);
+              }
+            }
+            catch (e) {
+              console.error(e);
+            }
           }
         }
       ]

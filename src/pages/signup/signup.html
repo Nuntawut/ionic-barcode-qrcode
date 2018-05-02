@@ -1,0 +1,45 @@
+<ion-header>
+    <ion-navbar>
+      <ion-title>Sign up</ion-title>
+    </ion-navbar>
+</ion-header>
+
+<ion-content text-center padding>
+  
+    <ion-list>
+  
+        <ion-item>
+          <ion-label floating>Email Address</ion-label>
+          <ion-input type="text" [(ngModel)]="email"></ion-input>
+        </ion-item>
+  
+        <ion-item>
+          <ion-label floating>Password</ion-label>
+          <ion-input type="password" [(ngModel)]="password"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label floating>First Name</ion-label>
+          <ion-input type="text" [(ngModel)]="fname"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label floating>Last Name</ion-label>
+          <ion-input type="text" [(ngModel)]="lname"></ion-input>
+        </ion-item>
+
+        <ion-item>
+            <ion-label floating>Spread Sheet ID.</ion-label>
+            <ion-input type="text" [(ngModel)]="spreadsheetId"></ion-input>
+          </ion-item>
+  
+      </ion-list>  
+
+  <p>
+    <button ion-button block icon-left (click)="insert2Firebase()">
+      <ion-icon ios="ios-create" md="md-create"></ion-icon>
+      Sign up
+    </button>
+  </p>
+  
+</ion-content>

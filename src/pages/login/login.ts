@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
-import { NavController, LoadingController } from 'ionic-angular';
+import { NavController, LoadingController, AlertController } from 'ionic-angular';
+import { AngularFireAuth } from 'angularfire2/auth';
 
 import { HomePage } from '../home/home';
+import { SignupPage } from '../signup/signup';
 
 @Component({
   selector: 'page-login',
@@ -9,26 +11,54 @@ import { HomePage } from '../home/home';
 })
 export class LoginPage {
 
-  constructor(public navCtrl: NavController, public loadingCtrl: LoadingController) {
+  email:any;
+  password:any;
+
+  constructor(private afAuth: AngularFireAuth, public alerCtrl: AlertController, public navCtrl: NavController, public loadingCtrl: LoadingController) {
 
   }
 
-  login(){
-    
-    let loading = this.loadingCtrl.create({
-      content: "Please wait...",
-      duration: 3000
+  async login(){
+
+    console.log('Login');
+
+    try {
+      const result = await this.afAuth.auth.signInWithEmailAndPassword(this.email, this.password);
+      
+      if (result) {
+        let loading = this.loadingCtrl.create({
+          content: "Please wait...",
+          duration: 5000
+        });
+        loading.onDidDismiss(() => {
+          this.navCtrl.setRoot(HomePage);
+        });
+        loading.present();
+      }  
+    }
+    catch (e) {
+      var errorMessage;
+      switch (e.code) {
+        case 'auth/argument-error': errorMessage = 'auth/argument-error';
+                                    break;
+        case 'auth/invalid-email':  errorMessage = 'auth/invalid-email';
+                                    break;
+        case 'auth/user-not-found': errorMessage = 'auth/user-not-found';
+                                    break;
+        case 'auth/wrong-password': errorMessage = 'auth/wrong-password';
+                                    break;
+    }
+    let alert = this.alerCtrl.create({
+      title: 'Sigin Error',
+      subTitle: errorMessage,
+      buttons: ['OK']
     });
-  
-    loading.onDidDismiss(() => {
-      console.log('Login');
-      this.navCtrl.setRoot(HomePage);
-    });
-  
-    loading.present();
+    alert.present();
+   }
     
   }
   signup(){
     console.log('Signup');
+    this.navCtrl.push(SignupPage);
   }
 }
