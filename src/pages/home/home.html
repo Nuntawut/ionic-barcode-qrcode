@@ -1,14 +1,43 @@
 <ion-header>
-  <ion-navbar>
-    <ion-title>
-      Ionic Blank
-    </ion-title>
-  </ion-navbar>
+    <ion-navbar>
+      <ion-title>SUT Barcode Scanner</ion-title>
+    </ion-navbar>
 </ion-header>
 
-<ion-content padding>
-  The world is your oyster.
+<ion-content text-center padding>
   <p>
-    If you get lost, the <a href="http://ionicframework.com/docs/v2">docs</a> will be your guide.
+    <ion-img style="width: 120px; height: 120px;" src="./assets/imgs/logo.png"></ion-img>
   </p>
+  <ion-list >
+      <ion-item>
+        <ion-label fixed color="primary">Course ID :</ion-label>
+        <ion-input type="text" [(ngModel)]="courseid" placeholder="Course ID. input"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label fixed color="primary">Group :</ion-label>
+        <ion-input type="number" [(ngModel)]="groupnum" placeholder="Group number input"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label fixed color="primary">Score :</ion-label>
+        <ion-input type="number" [(ngModel)]="score" placeholder="Score input"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label fixed color="primary">Fix Score :</ion-label>
+        <ion-toggle [(ngModel)]="fixscore" checked="true"></ion-toggle>
+      </ion-item>
+  </ion-list>
+
+  <p>
+      <button ion-button block large icon-left (click)="scanBarcode()">
+          <ion-icon ios="ios-barcode" md="md-barcode"></ion-icon>
+        Scan Barcode
+      </button>
+  </p>
+  <p>
+      <button ion-button color="danger" block icon-left (click)="logout()">
+        <ion-icon ios="ios-log-out" md="md-log-out"></ion-icon>
+        Log out
+      </button>
+  </p>  
+   
 </ion-content>
