@@ -1,0 +1,8 @@
+{
+  "name": "sutbarcodescanner",
+  "app_id": "b04548db",
+  "type": "ionic-angular",
+  "integrations": {
+    "cordova": {}
+  }
+}
