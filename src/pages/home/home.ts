@@ -7,7 +7,6 @@ import { AngularFireDatabase } from 'angularfire2/database';
 
 import 'rxjs/add/operator/map';
 
-
 import { LoginPage } from '../login/login';
 
 @Component({
@@ -17,23 +16,25 @@ import { LoginPage } from '../login/login';
 export class HomePage {
 
   student_id:any;
-  courseid: any;
   groupnum: number;
   score: number;
   fixscore:any = true;
   userid:any;
 
+  testRadioOpen: boolean;
+
   public fname;
 
   //API Url and Google sheet id
-  public link = 'https://google-sheet-api.herokuapp.com/';
+  public link = 'https://golang-sheet-api.herokuapp.com/';
   public spreadsheetId;
   public namesheet = 'SheetApi';
 
   public scanOption = {
     showTorchButton : true,
     prompt : "ให้ตำแหน่งของ barcode อยู่ภายในพื้นที่ scan",
-    disableSuccessBeep: false
+    disableSuccessBeep: false,
+    showFlipCameraButton:true,
   };
 
   constructor(private toast: ToastController, private afAuth: AngularFireAuth, private db: AngularFireDatabase, public navCtrl: NavController, public alerCtrl: AlertController, public barcodeScanner: BarcodeScanner, public http: Http) {
@@ -56,7 +57,6 @@ export class HomePage {
 
   scanBarcode(){
 
-    console.log('Course ID =',this.courseid);
     console.log('Group =',this.groupnum);
     console.log('Score =',this.score);
     console.log('FixScore =',this.fixscore);
@@ -65,6 +65,7 @@ export class HomePage {
       if(this.score){
         console.log('Score is fix');
         this.cameraScanner();
+        //this.cameraScannerTest();
       }else{
         let alert = this.alerCtrl.create({
           title: 'Invalid!',
@@ -74,13 +75,7 @@ export class HomePage {
         alert.present()
       }
     }else{
-      console.log('Score is not fix');
-      let alert = this.alerCtrl.create({
-        title: 'Error!',
-        message: 'Comming Soon!',
-        buttons: ['Ok']
-      });
-      alert.present()
+      this.cameraScanner();
     }
     
   }
@@ -89,7 +84,7 @@ export class HomePage {
     this.httpPost();
   }
 
-  cameraScanner(){
+  async cameraScanner(){
     console.log('Camera Scanner');
 
     this.barcodeScanner.scan(this.scanOption).then(barcodeData => {
@@ -97,8 +92,12 @@ export class HomePage {
       this.student_id = barcodeData.text;
             
       if(barcodeData.cancelled==false){
-        this.httpPost();
-        this.cameraScanner();
+        if(this.fixscore){
+          this.httpPost();
+          this.cameraScanner();
+        }else{
+          this.doRadio();
+        }
       }
       
     }, (err) => {
@@ -106,22 +105,81 @@ export class HomePage {
     });
   }
 
-  httpPost(){
+  enterStudentId(){
+    if(this.score){
+      let prompt = this.alerCtrl.create({
+        title: 'Enter Student ID.',
+        inputs: [
+          {
+            name: 'studentid',
+            placeholder: 'Student ID'
+          },
+        ],
+        buttons: [
+          {
+            text: 'Cancel',
+            handler: data => {
+              console.log('Cancel clicked');
+            }
+          },
+          {
+            text: 'Ok',
+            handler: data => {
+              this.student_id = 'B'+data['studentid']
+              console.log(this.student_id)
+              this.httpPost();
+            }
+          }
+        ]
+      });
+      prompt.present();
+    }else{
+      let alert = this.alerCtrl.create({
+        title: 'Invalid!',
+        message: 'Please input score!',
+        buttons: ['Ok']
+      });
+      alert.present()
+    }
+    
+  }
+
+  async httpPost(){
     console.log(this.student_id);
     console.log(this.groupnum);
     console.log(this.score);
 
-    var myData = JSON.stringify({course_id: this.courseid, student_id: this.student_id, group: this.groupnum, score: this.score, spreadsheetId: this.spreadsheetId, namesheet: this.namesheet});
+    var myData = JSON.stringify(
+      {
+        header: {
+          code: 200,
+          desc: "Success"
+        },
+        body: [
+          {
+            student_id: this.student_id,
+            group: this.groupnum,
+            score: this.score,
+            spreadsheetId:this.spreadsheetId
+          }
+        ]
+      }
+      //{course_id: this.courseid, student_id: this.student_id, group: this.groupnum, score: this.score, spreadsheetId: this.spreadsheetId, namesheet: this.namesheet}
+    
+    );
+
     this.http.post(this.link, myData).map(res => res.json())
       .subscribe(data => {
-        console.log(data[0]['status']);
-        if(data[0]['status']!='2'){
+        
+        if(data['code']!=200){
           let alert = this.alerCtrl.create({
             title: 'Error',
             subTitle: 'Cannot insert the data to google sheet!',
             buttons: ['OK']
           });
           alert.present();
+        }else{
+          console.log("Append data successfully:",data);
         }
       }, error => {
         console.log('Error: ', error);
@@ -157,5 +215,99 @@ export class HomePage {
       ]
     });
     confirm.present();
+  }
+
+  delay(){
+
+    return new Promise((resolve)=>{
+      setTimeout(()=>{
+        resolve(true);
+      },1000);
+    });
+  }
+
+  doRadio() {
+    let alert = this.alerCtrl.create();
+    alert.setTitle('Select Score !');
+
+    alert.addInput({
+      type: 'radio',
+      label: '1 Point',
+      value: '1',
+      checked: true
+    });
+
+    alert.addInput({
+      type: 'radio',
+      label: '2 Point',
+      value: '2'
+    });
+
+    alert.addInput({
+      type: 'radio',
+      label: '3 Point',
+      value: '3'
+    });
+
+    alert.addInput({
+      type: 'radio',
+      label: '4 Point',
+      value: '4'
+    });
+
+    alert.addInput({
+      type: 'radio',
+      label: '5 Point',
+      value: '5'
+    });
+
+    alert.addInput({
+      type: 'radio',
+      label: '6 Point',
+      value: '6'
+    });
+
+    alert.addInput({
+      type: 'radio',
+      label: '7 Point',
+      value: '7'
+    });
+
+    alert.addInput({
+      type: 'radio',
+      label: '8 Point',
+      value: '8'
+    });
+
+    alert.addInput({
+      type: 'radio',
+      label: '9 Point',
+      value: '9'
+    });
+
+    alert.addInput({
+      type: 'radio',
+      label: '10 Point',
+      value: '10'
+    });
+
+    alert.addButton('Cancel');
+    alert.addButton({
+      text: 'Ok',
+      handler: data => {
+        this.testRadioOpen = false;
+        this.score = data;
+        
+        this.delay().then(()=>{
+          this.httpPost();
+          this.cameraScanner();
+        })
+        
+      }
+    });
+
+    alert.present().then(() => {
+      this.testRadioOpen = true;
+    });
   }
 }

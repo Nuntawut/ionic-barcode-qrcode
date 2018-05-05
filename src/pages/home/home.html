@@ -4,15 +4,18 @@
     </ion-navbar>
 </ion-header>
 
-<ion-content text-center padding>
-  <p>
+<ion-content padding>
+  <p text-center>
     <ion-img style="width: 150px; height: 150px;" src="./assets/imgs/logo.png"></ion-img>
   </p>
   <ion-list >
-      <ion-item>
+<!--       <ion-item>
         <ion-label fixed color="primary">Course ID :</ion-label>
         <ion-input type="text" [(ngModel)]="courseid" placeholder="Course ID. input"></ion-input>
-      </ion-item>
+      </ion-item> -->
+      <ion-list-header>
+        Data Setting
+      </ion-list-header>
       <ion-item>
         <ion-label fixed color="primary">Group :</ion-label>
         <ion-input type="number" [(ngModel)]="groupnum" placeholder="Group number input"></ion-input>
@@ -34,10 +37,16 @@
       </button>
   </p>
   <p>
-      <button ion-button color="danger" block icon-left (click)="logout()">
-        <ion-icon ios="ios-log-out" md="md-log-out"></ion-icon>
-        Log out
-      </button>
-  </p>  
+    <button ion-button block large icon-left (click)="enterStudentId()">
+      <ion-icon ios="ios-calculator" md="md-calculator"></ion-icon>
+      Enter Student ID.
+    </button>
+</p>
+<p>
+    <button ion-button color="danger" block icon-left (click)="logout()">
+      <ion-icon ios="ios-log-out" md="md-log-out"></ion-icon>
+      Log out
+    </button>
+</p>  
    
 </ion-content>
