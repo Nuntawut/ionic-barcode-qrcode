@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, AlertController, ToastController } from 'ionic-angular';
+import { NavController, AlertController, ToastController, LoadingController } from 'ionic-angular';
 import { Http } from '@angular/http';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner';
 import { AngularFireAuth } from 'angularfire2/auth';
@@ -37,26 +37,34 @@ export class HomePage {
     showFlipCameraButton:true,
   };
 
-  constructor(private toast: ToastController, private afAuth: AngularFireAuth, private db: AngularFireDatabase, public navCtrl: NavController, public alerCtrl: AlertController, public barcodeScanner: BarcodeScanner, public http: Http) {
-    
+  constructor(public loadingCtrl: LoadingController, private toast: ToastController, private afAuth: AngularFireAuth, private db: AngularFireDatabase, public navCtrl: NavController, public alerCtrl: AlertController, public barcodeScanner: BarcodeScanner, public http: Http) {
+    console.log("constructor")
     this.userid = this.afAuth.auth.currentUser.uid;
-    
+
+    let loading = this.loadingCtrl.create({
+      content: 'Please wait...'
+    }); 
+    loading.present();
+
     this.db.object('/users/'+this.userid).valueChanges().subscribe(data =>{
       this.fname = data['fname'];
       this.spreadsheetId = data['spreadsheetId'];
       console.log(this.fname);
       console.log(this.spreadsheetId);
-      if(this.fname){
-        this.toast.create({
-          message: `Welcome to SUT Barcode Scanner, ${this.fname}`,
-          duration: 3000
-        }).present();
-      }
-    })   
+      loading.dismiss();
+
+      let toast = this.toast.create({
+        message: `Welcome to SUT Barcode Scanner, ${this.fname}`,
+        duration: 3000,
+        position: 'top'
+      });
+      toast.present();
+
+    })
   }
-
+  
   scanBarcode(){
-
+    
     console.log('Group =',this.groupnum);
     console.log('Score =',this.score);
     console.log('FixScore =',this.fixscore);
@@ -179,7 +187,7 @@ export class HomePage {
           });
           alert.present();
         }else{
-          console.log("Append data successfully:",data);
+          console.log("Append data successfully:");
         }
       }, error => {
         console.log('Error: ', error);

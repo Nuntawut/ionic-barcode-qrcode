@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, LoadingController, AlertController } from 'ionic-angular';
+import { NavController, AlertController } from 'ionic-angular';
 import { AngularFireAuth } from 'angularfire2/auth';
 
 import { HomePage } from '../home/home';
@@ -14,7 +14,7 @@ export class LoginPage {
   email:any;
   password:any;
 
-  constructor(private afAuth: AngularFireAuth, public alerCtrl: AlertController, public navCtrl: NavController, public loadingCtrl: LoadingController) {
+  constructor(private afAuth: AngularFireAuth, public alerCtrl: AlertController, public navCtrl: NavController) {
 
   }
 
@@ -26,14 +26,7 @@ export class LoginPage {
       const result = await this.afAuth.auth.signInWithEmailAndPassword(this.email, this.password);
       
       if (result) {
-        let loading = this.loadingCtrl.create({
-          content: "Please wait...",
-          duration: 5000
-        });
-        loading.onDidDismiss(() => {
           this.navCtrl.setRoot(HomePage);
-        });
-        loading.present();
       }  
     }
     catch (e) {
