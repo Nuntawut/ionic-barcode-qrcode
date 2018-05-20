@@ -109,6 +109,12 @@ export class HomePage {
       }
       
     }, (err) => {
+      let alert = this.alerCtrl.create({
+        title: 'Error',
+        subTitle: 'Cannot read data from barcode or qrcode!',
+        buttons: ['OK']
+      });
+      alert.present();
       console.log('Error: ', err);
     });
   }
