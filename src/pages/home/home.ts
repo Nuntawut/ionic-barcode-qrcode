@@ -27,6 +27,8 @@ export class HomePage {
 
   //API Url and Google sheet id
   public link = 'https://golang-sheet-api.herokuapp.com/';
+  public link2 = 'https://script.google.com/macros/s/AKfycbybYSZXgaG-xJY9Q1WByBMp1paHZJ0ZZ0qAP2sso5DRaOLZotE/exec'
+ 
   public spreadsheetId;
   public namesheet = 'SheetApi';
 
@@ -165,24 +167,16 @@ export class HomePage {
 
     var myData = JSON.stringify(
       {
-        header: {
-          code: 200,
-          desc: "Success"
-        },
-        body: [
-          {
             student_id: this.student_id,
             group: this.groupnum,
             score: this.score,
             spreadsheetId:this.spreadsheetId
-          }
-        ]
       }
       //{course_id: this.courseid, student_id: this.student_id, group: this.groupnum, score: this.score, spreadsheetId: this.spreadsheetId, namesheet: this.namesheet}
     
     );
 
-    this.http.post(this.link, myData).map(res => res.json())
+    this.http.post(this.link2, myData).map(res => res.json())
       .subscribe(data => {
         
         if(data['code']!=200){
